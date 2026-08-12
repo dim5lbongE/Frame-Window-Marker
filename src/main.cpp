@@ -111,7 +111,7 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
     }
 
     void placeMarker(int frames) {
-        if (!m_player1 || m_isDead) return;
+        if (!m_player1) return;
         auto position = m_player1->getPosition();
 
         Marker* nearest = nullptr;
