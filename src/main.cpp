@@ -65,7 +65,7 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
         bool endWasDown = false;
         bool analysisVisible = false;
         bool measurementActive = false;
-        uint64_t tick = 0;
+        uint64_t gameTick = 0;
         uint64_t measurementStartTick = 0;
         CCPoint measurementStartPosition{0.f, 0.f};
         CCLabelBMFont* status = nullptr;
@@ -88,7 +88,7 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
 
     void update(float dt) {
         PlayLayer::update(dt);
-        ++m_fields->tick;
+        ++m_fields->gameTick;
 #ifdef GEODE_IS_WINDOWS
         bool alt = (GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
         for (int frames = 1; frames <= 10; ++frames) {
@@ -123,9 +123,9 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
         }
     }
 
-    int currentMeasurementFrames() const {
+    int currentMeasurementFrames() {
         if (!m_fields->measurementActive) return 0;
-        return static_cast<int>(m_fields->tick - m_fields->measurementStartTick + 1);
+        return static_cast<int>(m_fields->gameTick - m_fields->measurementStartTick + 1);
     }
 
     void startMeasurement() {
@@ -134,7 +134,7 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
             return;
         }
         m_fields->measurementActive = true;
-        m_fields->measurementStartTick = m_fields->tick;
+        m_fields->measurementStartTick = m_fields->gameTick;
         m_fields->measurementStartPosition = m_player1->getPosition();
         showStatus("MARKING START: 1F", {255, 220, 60});
     }
