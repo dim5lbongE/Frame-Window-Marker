@@ -1,0 +1,12 @@
+{
+  "geode": "5.0.0",
+  "gd": {
+    "win": "2.208"
+  },
+  "id": "dim5l.frame-window-marker",
+  "name": "Frame Window Marker",
+  "version": "v1.1.0",
+  "developer": "dim5l",
+  "description": "Place persistent 1F-10F markers while playing a level.",
+  "tags": ["utility", "practice"]
+}
