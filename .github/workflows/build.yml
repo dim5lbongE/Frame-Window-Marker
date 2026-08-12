@@ -1,0 +1,26 @@
+name: Build Windows Geode mod
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Windows mod
+        id: build
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          sdk: latest
+          target: Win64
+
+      - name: Upload installable mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frame-Window-Marker-Windows
+          path: ${{ steps.build.outputs.build-output }}
