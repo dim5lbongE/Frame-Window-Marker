@@ -61,7 +61,13 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
         std::array<bool, 11> keyWasDown{};
         bool deleteWasDown = false;
         bool toggleWasDown = false;
+        bool startWasDown = false;
+        bool endWasDown = false;
         bool analysisVisible = false;
+        bool measurementActive = false;
+        uint64_t tick = 0;
+        uint64_t measurementStartTick = 0;
+        CCPoint measurementStartPosition{0.f, 0.f};
         CCLabelBMFont* status = nullptr;
     };
 
@@ -69,7 +75,7 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
 
         m_fields->markers = loadMarkers(level);
-        m_fields->status = CCLabelBMFont::create("Alt+1..9 / Alt+0 = 10F", "bigFont.fnt");
+        m_fields->status = CCLabelBMFont::create("F6 START / F7 END / F8 ANALYSIS", "bigFont.fnt");
         m_fields->status->setScale(.32f);
         m_fields->status->setOpacity(150);
         m_fields->status->setAnchorPoint({0.f, 1.f});
@@ -82,6 +88,7 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
 
     void update(float dt) {
         PlayLayer::update(dt);
+        ++m_fields->tick;
 #ifdef GEODE_IS_WINDOWS
         bool alt = (GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
         for (int frames = 1; frames <= 10; ++frames) {
@@ -98,7 +105,55 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
         bool toggleDown = (GetAsyncKeyState(VK_F8) & 0x8000) != 0;
         if (toggleDown && !m_fields->toggleWasDown) toggleAnalysis();
         m_fields->toggleWasDown = toggleDown;
+
+        bool startDown = (GetAsyncKeyState(VK_F6) & 0x8000) != 0;
+        if (startDown && !m_fields->startWasDown) startMeasurement();
+        m_fields->startWasDown = startDown;
+
+        bool endDown = (GetAsyncKeyState(VK_F7) & 0x8000) != 0;
+        if (endDown && !m_fields->endWasDown) endMeasurement();
+        m_fields->endWasDown = endDown;
 #endif
+
+        if (m_fields->measurementActive && m_fields->status) {
+            auto frames = currentMeasurementFrames();
+            m_fields->status->setString(fmt::format("MARKING: {}F  [F7 END]", frames).c_str());
+            m_fields->status->setColor({255, 220, 60});
+            m_fields->status->setOpacity(255);
+        }
+    }
+
+    int currentMeasurementFrames() const {
+        if (!m_fields->measurementActive) return 0;
+        return static_cast<int>(m_fields->tick - m_fields->measurementStartTick + 1);
+    }
+
+    void startMeasurement() {
+        if (!m_player1) {
+            showStatus("Cannot start: no player", {255, 100, 100});
+            return;
+        }
+        m_fields->measurementActive = true;
+        m_fields->measurementStartTick = m_fields->tick;
+        m_fields->measurementStartPosition = m_player1->getPosition();
+        showStatus("MARKING START: 1F", {255, 220, 60});
+    }
+
+    void endMeasurement() {
+        if (!m_fields->measurementActive) {
+            showStatus("Press F6 first", {255, 100, 100});
+            return;
+        }
+
+        int frames = currentMeasurementFrames();
+        auto position = m_fields->measurementStartPosition;
+        m_fields->measurementActive = false;
+
+        if (frames < 1 || frames > 10) {
+            showStatus(fmt::format("Not saved: {}F (allowed 1-10F)", frames), {255, 100, 100});
+            return;
+        }
+        saveMarkerAt(position, frames, true);
     }
 
     void showStatus(std::string const& text, ccColor3B color = {255, 255, 255}) {
@@ -112,7 +167,10 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
 
     void placeMarker(int frames) {
         if (!m_player1) return;
-        auto position = m_player1->getPosition();
+        saveMarkerAt(m_player1->getPosition(), frames, false);
+    }
+
+    void saveMarkerAt(CCPoint position, int frames, bool measured) {
 
         Marker* nearest = nullptr;
         float nearestDistance = 32.f;
@@ -128,10 +186,10 @@ class $modify(FrameWindowMarkerLayer, PlayLayer) {
             nearest->x = position.x;
             nearest->y = position.y;
             nearest->frames = frames;
-            showStatus(fmt::format("Marker changed: {}F", frames), {255, 235, 80});
+            showStatus(fmt::format("{} changed: {}F", measured ? "Measured marker" : "Marker", frames), {255, 235, 80});
         } else {
             m_fields->markers.push_back({position.x, position.y, frames});
-            showStatus(fmt::format("Marker saved: {}F", frames), {100, 255, 120});
+            showStatus(fmt::format("{} saved: {}F", measured ? "Measured marker" : "Marker", frames), {100, 255, 120});
         }
         saveMarkers(m_level, m_fields->markers);
         rebuildAnalysis();
