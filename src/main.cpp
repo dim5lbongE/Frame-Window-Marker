@@ -2,7 +2,7 @@
 #include <Geode/modify/PlayLayer.hpp>
 
 #ifdef GEODE_IS_WINDOWS
-#include <Geode/loader/Windows.hpp>
+#include <Windows.h>
 #endif
 
 using namespace geode::prelude;
