@@ -1,0 +1,24 @@
+# Frame Window Marker
+
+Windows용 Geometry Dash 2.208 / Geode 5.x 모드입니다. 플레이 중 직접 측정한 프레임 윈도우를 레벨 위치에 기록하고 Silicate 재생 위에 분석 화면을 표시합니다.
+
+## 조작법
+
+- `Alt + 1` ~ `Alt + 9`: 현재 위치에 1F~9F 마커 기록
+- `Alt + 0`: 현재 위치에 10F 마커 기록
+- `Alt + Delete`: 현재 위치에서 가장 가까운 마커 삭제
+- `F8`: Silicate 리플레이 재생 중 분석 오버레이 표시/숨김
+- 기존 마커의 약 32 게임 단위 안에서 다시 기록하면 새 마커 대신 값이 변경됩니다.
+
+마커는 온라인 레벨 ID 또는 로컬 레벨 이름별로 Geode 저장 데이터에 보존됩니다.
+분석 화면에는 9-10F, 7-8F, 5-6F, 4F, 3F, 2F, 1F별 개수와 각 위치의 원형 마커가 표시됩니다.
+
+## 빌드
+
+Geode CLI와 Windows용 Geode SDK가 설치된 환경에서 프로젝트 폴더를 열고 실행합니다.
+
+```sh
+geode build
+```
+
+완성된 `.geode` 파일을 Geometry Dash의 `geode/mods` 폴더에 넣습니다.
