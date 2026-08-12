@@ -5,8 +5,8 @@
   },
   "id": "dim5l.frame-window-marker",
   "name": "Frame Window Marker",
-  "version": "v1.1.0",
+  "version": "v1.2.0",
   "developer": "dim5l",
-  "description": "Place persistent 1F-10F markers while playing a level.",
+  "description": "Measure and save persistent 1F-10F frame-window markers.",
   "tags": ["utility", "practice"]
 }
